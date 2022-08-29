@@ -15,14 +15,37 @@
 #include <sys/stat.h>
 using namespace std;
 
-#define KEY_ESCAPE  0x001b
-#define KEY_ENTER   0x000a
-#define KEY_UP      0x0105
-#define KEY_DOWN    0x0106
-#define KEY_LEFT    0x0107
-#define KEY_RIGHT   0x0108
+extern struct winsize wins;
+extern struct termios initialAttributes;
+extern struct passwd *pw;
+extern string home;
 
-#define cursorforward(x) printf("\033[%dC", (x))
-#define cursorbackward(x) printf("\033[%dD", (x))
-#define cursorup(x) printf("\033[%dA", (x))
-#define cursordown(x) printf("\033[%dB", (x))
+
+extern vector<vector<string>> infoVector;
+extern stack<string> backStack,forStack;
+extern int cursorPos, startPos, endPos,winRows;
+extern string gbPath;
+
+void setHomePath();
+void setCanonicalMode();
+void setNonCanonicalMode();
+size_t terminalRows();
+vector<string> split(string str, char del);
+void emptyBackStack();
+void emptyForStack();
+void convertLower(string &test);
+bool cmp2(string &a, string &b);
+void displayInfoVector();
+void resetPointers();
+void displayWindow();
+void displayWindowResetPointers();
+string simplifyPath(string dirnameString);
+void createInfoVector(string path);
+vector<string> listDirectory(const char *dirname);
+void openDirectory();
+void enterKey();
+void upKey();
+void downKey();
+void backKey();
+void forKey();
+void backspace();
