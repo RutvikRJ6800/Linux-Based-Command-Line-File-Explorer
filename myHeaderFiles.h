@@ -23,7 +23,7 @@ extern string home;
 
 extern vector<vector<string>> infoVector;
 extern stack<string> backStack,forStack;
-extern int cursorPos, startPos, endPos,winRows;
+extern size_t cursorPos, startPos, endPos,winRows;
 extern string gbPath;
 
 void setHomePath();

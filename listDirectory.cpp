@@ -5,7 +5,7 @@ vector<vector<string>> infoVector;
 void displayInfoVector(){
     cout<<"\33c";
     // for(int i=0; i<infoVector.size(); i++){
-    for(int i=startPos; i<=endPos; i++){
+    for(size_t i=startPos; i<=endPos; i++){
         if(i==cursorPos){
             cout<<"--->\t";
         }
@@ -90,7 +90,6 @@ void createInfoVector(string path){
     double fileSize;
     char mtime[50];
     string perm,uname,gname;
-    time_t s_time;
     vector<string> name= split(path,'/');
     vector<string> details;
 
@@ -237,7 +236,7 @@ vector<string> listDirectory(const char *dirname){
     }
     */
 
-    for(int i=0; i<vecOfPath.size(); i++){
+    for(size_t i=0; i<vecOfPath.size(); i++){
         createInfoVector(vecOfPath[i]);
     }
 
