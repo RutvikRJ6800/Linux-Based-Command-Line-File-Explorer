@@ -1,16 +1,30 @@
 /*
 Integration of ls and scrolling functionality 
 
-current modification i am doing : line 103 store correct path 
+###DONE current modification i am doing : line 103 store correct path 
+###DONE find home path and store it into home string.
+        Sliding window type display of content
 
 */
 #include "myHeaderFiles.h"
 using namespace std;
 struct winsize wins;
 struct termios initialAttributes;
+struct passwd *pw = getpwuid(getuid());
+string home;
+
 
 vector<vector<string>> infoVector;
-int cursorPos, startPos, endPos;
+stack<string> backStack,forStack;
+int cursorPos, startPos, endPos,winRows;
+string gbPath;
+
+void setHomePath(){
+    // find Home here
+    // pw = getpwuid(getuid());
+    home=pw->pw_dir;
+    gbPath=home;
+}
 
 void setCanonicalMode(){
     tcsetattr(STDIN_FILENO, TCSAFLUSH, &initialAttributes);
@@ -55,12 +69,25 @@ vector<string> split(string str, char del){
     return res;
 }
 
+void emptyBackStack(){
+    while(!backStack.empty()){
+        backStack.pop();
+    }
+}
+
+void emptyForStack(){
+    while(!forStack.empty()){
+        forStack.pop();
+    }
+}
+
 void convertLower(string &test){
     for(auto& c : test){
         c = tolower(c);
     }
 }
 
+/* I Used it to sort InfoVector before...:) 
 bool cmp(vector<string>& lhs, vector<string>& rhs){
     string st1=lhs[lhs.size()-1];
     string st2=rhs[rhs.size()-1];
@@ -71,22 +98,100 @@ bool cmp(vector<string>& lhs, vector<string>& rhs){
     // transform(st2.begin(), st2.end(), st2.begin(), ::tolower);
 
     return st1<st2;
+} */
+
+bool cmp2(string &a, string &b){
+    string st1=a;
+    string st2=b;
+
+    convertLower(st1);
+    convertLower(st2);
+
+    return st1<st2;
+
 }
 
 void displayInfoVector(){
     cout<<"\33c";
-    for(int i=0; i<infoVector.size(); i++){
+    // for(int i=0; i<infoVector.size(); i++){
+    for(int i=startPos; i<=endPos; i++){
         if(i==cursorPos){
             cout<<"--->\t";
         }
         else{
             cout<<"        ";
         }
-        for(int j=0; j<infoVector[i].size(); j++){
-            cout<<infoVector[i][j]<<"\t";
-        }
+        cout<<left<<setw(14)<<infoVector[i][1]; // permission
+        cout<<right<<setw(8)<<infoVector[i][2]<<"    "; // file size
+        cout<<left<<setw(12)<<infoVector[i][3]; // uname
+        cout<<left<<setw(12)<<infoVector[i][4]; // gname
+        cout<<left<<setw(29)<<infoVector[i][5]; // date
+        cout<<left<<infoVector[i][6]<<endl; // file Name
+
+        // for(int j=1; j<infoVector[i].size(); j++){
+        //     cout<<infoVector[i][j]<<"\t";
+        // }
+        // cout<<endl;
+
+    }
+}
+void resetPointers(){
+    winRows= terminalRows();
+    // endPos=winRows-6;
+    endPos=infoVector.size()<winRows-6?infoVector.size()-1:winRows-6;
+    cursorPos=startPos=0;
+}
+
+void displayWindow(){
+    // int winRows= terminalRows();
+    // endPos=winRows-6;
+    // cursorPos=startPos=0;
+    // int newWinRows= terminalRows();
+    // if(newWinRows<winRows){
+    //     // window shrink so set endpointer according ly
+    //     endPos=newWinRows<infoVector.size()
+    // }
+    // endPos=winRows-6;
+    winRows=terminalRows();
+    endPos=(winRows-6+startPos)<infoVector.size()?(winRows-6+startPos):infoVector.size()-1;
+
+    displayInfoVector();
+
+    int emptyLine=winRows-(endPos-startPos+1)-3;
+    while(emptyLine--){
         cout<<endl;
     }
+    cout<<"PATH: "<<gbPath<<endl;
+    cout<<"------NORMAL MODE------";
+}
+
+void displayWindowResetPointers(){
+    // int winRows= terminalRows();
+    // endPos=winRows-6; 
+    // cursorPos=startPos=0;
+    resetPointers();
+    displayWindow();
+    
+}
+
+string simplifyPath(string dirnameString){
+    int dirLength=dirnameString.size();
+    if(dirnameString[dirLength-1]=='.' && dirnameString[dirLength-2]=='.'){
+        int idx=dirnameString.find_last_of('/');
+        dirnameString=dirnameString.substr(0,idx);
+        idx=dirnameString.find_last_of('/');
+        dirnameString=dirnameString.substr(0,idx);
+    }
+    else if(dirnameString[dirLength-1]=='.'){
+        int idx=dirnameString.find_last_of('/');
+        dirnameString=dirnameString.substr(0,idx);
+    }
+
+    // if simplified dirnameString is  empty that means actually it would be "/"
+    if(dirnameString=="")dirnameString="/";
+
+    return dirnameString;
+
 }
 
 void createInfoVector(string path){
@@ -95,19 +200,20 @@ void createInfoVector(string path){
     char mtime[50];
     string perm,uname,gname;
     time_t s_time;
+    vector<string> name= split(path,'/');
     vector<string> details;
 
     if(stat(path.c_str(),&inode)!=0){
         cout<<"Can't open the file with path "<<path<<" error code: "<<strerror(stat(path.c_str(),&inode))<<endl;
         return;
     }
-    vector<string> name= split(path,'/');
 
-     /* print vec of name */
+     /* print vec of name 
     for(int i=0; i<name.size(); i++){
         cout<<name[i]<<" ";
     }
     cout<<endl;
+    */
     
     perm="";
     
@@ -116,25 +222,41 @@ void createInfoVector(string path){
     perm+=(inode.st_mode&S_IWUSR)?'w':'-';
     perm+=(inode.st_mode&S_IXUSR)?'x':'-';
     perm+=(inode.st_mode&S_IRGRP)?'r':'-';
-    perm+=(inode.st_mode&S_IWGRP)?'r':'-';
-    perm+=(inode.st_mode&S_IXGRP)?'r':'-';
+    perm+=(inode.st_mode&S_IWGRP)?'w':'-';
+    perm+=(inode.st_mode&S_IXGRP)?'x':'-';
+    perm+=(inode.st_mode&S_IROTH)?'r':'-';
+    perm+=(inode.st_mode&S_IWOTH)?'w':'-';
+    perm+=(inode.st_mode&S_IXOTH)?'x':'-';
 
+    // append path first so we can use it later while we want to open the file.
+    details.push_back(path);
     details.push_back(perm);
-    // cout<<perm;
+
     fileSize=inode.st_size;
-    if(fileSize>100){
+    if(fileSize>=1024){
         fileSize=fileSize/1024;
-        if(fileSize>100)
+        if(fileSize>=1024)
         {
             fileSize=fileSize/1024;
+            if(fileSize>=1024){
+                fileSize=fileSize/1024;
+                string fs = to_string(fileSize);
+                fs=fs.substr(0, fs.find(".")+3);
+                fs+='G';
+                details.push_back(fs);
+
+
+            }
             // printf("%8.2fM\t",fileSize);
             string fs = to_string(fileSize);
+            fs=fs.substr(0, fs.find(".")+3);
             fs+='M';
             details.push_back(fs);
         }
         else{
             // printf("%8.2fK\t",fileSize);
             string fs = to_string(fileSize);
+            fs=fs.substr(0, fs.find(".")+3);
             fs+='K';
             details.push_back(fs);
 
@@ -143,6 +265,7 @@ void createInfoVector(string path){
     else{
         // printf("%8.2f \t",fileSize);
         string fs = to_string(fileSize);
+        fs=fs.substr(0, fs.find("."));
         details.push_back(fs);
     }
 
@@ -172,41 +295,99 @@ vector<string> listDirectory(const char *dirname){
     struct dirent *d;
     vector<string> vecOfPath;
     //open the directory
-    dir=opendir(dirname);
+    string dirnameString=dirname;
+    int dirLength=dirnameString.size();
+    if(dirnameString[dirLength-1]=='.' && dirnameString[dirLength-2]=='.'){
+        int idx=dirnameString.find_last_of('/');
+        dirnameString=dirnameString.substr(0,idx);
+        idx=dirnameString.find_last_of('/');
+        dirnameString=dirnameString.substr(0,idx);
+    }
+    else if(dirnameString[dirLength-1]=='.'){
+        int idx=dirnameString.find_last_of('/');
+        dirnameString=dirnameString.substr(0,idx);
+    }
+
+    // if simplified dirnameString is  empty that means actually it would be "/"
+    if(dirnameString=="")dirnameString="/";
+
+    cout<<"dirname"<<dirnameString<<endl;
+    // dir=opendir(dirname);
+    dir=opendir(dirnameString.c_str());
     if(!dir){
         cout<<"Error in opening directory"<<endl;
         exit(1);
     }
- 
 
+
+ 
+    
     while((d=readdir(dir))!=NULL){
-        string s=d->d_name,s1=dirname;
-        s=s1+'/'+s;
+        string s=d->d_name;
+        
+        if(dirnameString[dirnameString.size()-1]=='/'){
+            s=dirnameString+s;
+        }
+        else
+            s=dirnameString+'/'+s;
+
         vecOfPath.push_back(s);
         // cout<<d->d_name<<endl;
     }
     closedir(dir);
 
-    // sort(vecOfPath.begin(), vecOfPath.end());
+    sort(vecOfPath.begin(), vecOfPath.end(),cmp2);
 
     // clear screen before printing new things
+    infoVector.clear();
     /*print vec of path
     for(int i=0; i<vecOfPath.size(); i++){
         cout<<vecOfPath[i]<<endl;
     }
     */
 
-// clear infoVector before puting new info
-    infoVector.clear();
-
     for(int i=0; i<vecOfPath.size(); i++){
         createInfoVector(vecOfPath[i]);
     }
 
     // sort recently created infoVector
-    sort(infoVector.begin(), infoVector.end(), cmp);
+    // sort(infoVector.begin(), infoVector.end(), cmp);
 
     return vecOfPath;
+}
+// ************************************************
+// function to open directory while enter key press
+// ************************************************
+void openDirectory(){
+    // cursor is standing at valid directory
+        string newPath=infoVector[cursorPos][0];
+        newPath= simplifyPath(newPath);
+
+
+        listDirectory(newPath.c_str());
+        // in future check if error generated or not in listing directory and handle the case
+        backStack.push(gbPath);
+        gbPath=newPath;
+        emptyForStack();// forStack.clear();
+        displayWindowResetPointers();
+}
+
+void enterKey(){
+    if(cursorPos==0 || cursorPos==1){
+        return;
+    }
+    // cursor is standing at valid directory
+    if(infoVector[cursorPos][1][0]=='d'){
+        openDirectory();
+    }
+    else if(infoVector[cursorPos][1][0]=='-'){
+        // open file
+        pid_t pid=fork();
+        if(pid==0){
+            execl("/usr/bin/xdg-open","xdg-open",infoVector[cursorPos][0].c_str(),NULL);
+            exit(1);
+        }
+    }
 }
 
 void upKey(){
@@ -219,12 +400,12 @@ void upKey(){
             startPos--;
             endPos--;
         }
-        displayInfoVector();
+        displayWindow();
     }
     else{
         // you are standing at top of the content window
         cursorPos++;
-        displayInfoVector();
+        displayWindow();
     }
 }
 
@@ -239,29 +420,114 @@ void downKey(){
             startPos++;
             endPos++;
         }
-        displayInfoVector();
+        displayWindow();
     }
     else{
         // you are standing at top of the content window
         cursorPos--;
-        displayInfoVector();
+        displayWindow();
     }
+}
+
+void backKey(){
+    if(backStack.empty())return;
+    else{
+        string newPath=backStack.top();
+        newPath= simplifyPath(newPath);
+
+        backStack.pop();
+        listDirectory(newPath.c_str());
+        // in future check if error generated or not in listing directory and handle the case
+        forStack.push(gbPath);
+        gbPath=newPath;
+
+        displayWindowResetPointers();
+    }
+}
+
+void forKey(){
+    if(forStack.empty())return;
+    else{
+        string newPath=forStack.top();
+        newPath= simplifyPath(newPath);
+
+
+        forStack.pop();
+        listDirectory(newPath.c_str());
+        // in future check if error generated or not in listing directory and handle the case
+        backStack.push(gbPath);
+        gbPath=newPath;
+
+        displayWindowResetPointers();
+
+    }
+}
+
+void backspace(){
+    // if(backStack.empty()){
+    //     string newPath= simplifyPath(gbPath);
+    //     int idx=newPath.find_last_of('/');
+    //     newPath= newPath.substr(0,idx);
+
+    //     if(newPath=="")newPath="/";
+
+    //     listDirectory(newPath.c_str());
+    //     // in future check if error generated or not in listing directory and handle the case
+
+    //     // backStack.push(gbPath);
+    //     emptyForStack();// forStack.clear();
+    //     gbPath=newPath;
+    //     displayWindowResetPointers();
+    // }
+    // else{
+    //     // string newPath=backStack[backStack.size()-1];
+    //     string newPath=backStack.top();
+    //     backStack.pop();
+    //     listDirectory(newPath.c_str());
+    //     // in future check if error generated or not in listing directory and handle the case
+    //     emptyForStack();// forStack.clear();
+    //     gbPath=newPath;
+
+    //     displayWindowResetPointers();
+    // }
+
+    // NEW BACKSPACE FUNCTIONALITY
+    string newPath= simplifyPath(gbPath);
+
+    // find parent path of the simplified path
+    int idx=newPath.find_last_of('/');
+    newPath= newPath.substr(0,idx);
+    if(newPath=="")newPath="/";
+
+    if(newPath==gbPath){
+        // get executed when gbPath is "/" ---> so no need to list directory new time;
+        return;
+    }
+
+    listDirectory(newPath.c_str());
+    // in future check if error generated or not in listing directory and handle the case
+
+    // backStack.push(gbPath);
+    emptyForStack();// forStack.clear();
+    backStack.push(gbPath);
+    gbPath=newPath;
+    displayWindowResetPointers();
+
 }
 
 int main(){
 
     setNonCanonicalMode();
-    int winRows= terminalRows();
-    endPos=winRows-6;
-    string path="/home/rutvik/";
-    listDirectory(path.c_str());
 
-    displayInfoVector();
+    setHomePath();
+
+    listDirectory(gbPath.c_str());
+    displayWindowResetPointers();
+
     // display(0, 0, endPos,vecOfPaths);
     // cout<<"Terminal Rows: "<<terminalRows()<<endl;
     char ch;
     // ch=cin.get();
-
     while(1){
         ch = getchar();
         if(ch=='q')break;
@@ -280,13 +546,26 @@ int main(){
                     // printf("\033[B");
                     break;
                 case 'C':
-                    cursorforward(1);
+                    forKey();
                     break;
                 case 'D':
-                    cursorbackward(1);
+                    backKey();
                     break;
                 }
             }
+        }
+        else if(ch==0x0A){
+            enterKey();
+        }
+        else if(ch==127){
+            backspace();
+        }
+        else if(ch=='h'){
+            if(gbPath!=home)
+                backStack.push(gbPath);
+            gbPath=home;
+            listDirectory(gbPath.c_str());
+            displayWindowResetPointers();
         }
         else{
             cout<<ch<<endl;
