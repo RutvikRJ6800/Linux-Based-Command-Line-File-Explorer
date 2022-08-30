@@ -36,6 +36,7 @@ void enterKey(){
 }
 
 void upKey(){
+    if(cursorPos==0)return;
     cursorPos--;
     if(cursorPos>=0){
         // valid up move
