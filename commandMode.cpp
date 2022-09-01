@@ -23,7 +23,8 @@ string getAbsolutePath(string path){
 
     }
     else if(path[0]=='~'){
-        path=home+'/'+path;
+        string withTildRemove=path.substr(1,path.size()-1);
+        path=home+'/'+withTildRemove;
         if(realpath(path.c_str(), resolved_path)==NULL){
             cout<<"error"<<strerror(errno);
             return NULL;
