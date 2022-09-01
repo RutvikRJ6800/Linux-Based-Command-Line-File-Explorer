@@ -48,12 +48,15 @@ void displayWindow(){
 
     displayInfoVector();
 
-    int emptyLine=winRows-(endPos-startPos+1)-3;
+    int emptyLine=winRows-(endPos-startPos+1)-4;
     while(emptyLine--){
         cout<<endl;
     }
     cout<<"PATH: "<<gbPath<<endl;
+    if(!commandMode)
     cout<<"------NORMAL MODE------";
+    else
+    cout<<"------COMMAND MODE------";
 }
 
 void displayWindowResetPointers(){

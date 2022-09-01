@@ -13,6 +13,7 @@
 #include <dirent.h>
 #include<bits/stdc++.h>
 #include <sys/stat.h>
+#include <fstream>
 using namespace std;
 
 extern struct winsize wins;
@@ -25,6 +26,8 @@ extern vector<vector<string>> infoVector;
 extern stack<string> backStack,forStack;
 extern size_t cursorPos, startPos, endPos,winRows;
 extern string gbPath;
+extern bool commandMode;
+extern bool searchFound;
 
 void setHomePath();
 void setCanonicalMode();
@@ -49,3 +52,7 @@ void downKey();
 void backKey();
 void forKey();
 void backspace();
+
+
+void takeInput();
+vector<string> getCommand(string inp);
