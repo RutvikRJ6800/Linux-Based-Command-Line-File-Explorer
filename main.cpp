@@ -9,7 +9,11 @@ arrow key make transition of command mode to normal mode due to esc
 bool commandMode=false;
 int main(){
 
+    signal(SIGWINCH, sigWinChHandler);
     setNonCanonicalMode();
+
+    winCols=terminalCols();
+    winRows=terminalRows();
 
     setHomePath();
 

@@ -7,6 +7,11 @@ size_t terminalRows(){
     return wins.ws_row;
 }
 
+size_t terminalCols(){
+	ioctl(STDIN_FILENO, TIOCGWINSZ, &wins);
+    return wins.ws_col;
+}
+
 vector<string> split(string str, char del){
     vector<string> res;
     string temp="";

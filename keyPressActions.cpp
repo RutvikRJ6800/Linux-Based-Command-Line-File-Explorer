@@ -1,6 +1,6 @@
 #include "myHeaderFiles.h"
 
-size_t cursorPos, startPos, endPos,winRows;
+size_t cursorPos, startPos, endPos,winRows, winCols;
 stack<string> backStack,forStack;
 
 void openDirectory(){

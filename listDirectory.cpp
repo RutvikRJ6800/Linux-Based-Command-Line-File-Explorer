@@ -7,17 +7,22 @@ void displayInfoVector(){
     // for(int i=0; i<infoVector.size(); i++){
     for(size_t i=startPos; i<=endPos; i++){
         if(i==cursorPos){
+            cout<<"\033[1;7m";
             cout<<"--->\t";
         }
         else{
             cout<<"        ";
         }
-        cout<<left<<setw(14)<<infoVector[i][1]; // permission
-        cout<<right<<setw(8)<<infoVector[i][2]<<"    "; // file size
-        cout<<left<<setw(12)<<infoVector[i][3]; // uname
-        cout<<left<<setw(12)<<infoVector[i][4]; // gname
-        cout<<left<<setw(29)<<infoVector[i][5]; // date
-        cout<<left<<infoVector[i][6]<<endl; // file Name
+        if(winCols>70)cout<<left<<setw(10)<<infoVector[i][1]<<"    "; // permission
+        if(winCols>60)cout<<right<<setw(8)<<infoVector[i][2]<<"    "; // file size
+        if(winCols>130)cout<<left<<setw(12)<<infoVector[i][3]; // uname
+        if(winCols>140)cout<<left<<setw(12)<<infoVector[i][4]; // gname
+        if(winCols>100)cout<<left<<setw(29)<<infoVector[i][5]; // date
+        cout<<left<<infoVector[i][6]; // file Name
+        if(i==cursorPos){
+            cout<<"\033[0m";
+        }
+        cout<<"\n";
 
         // for(int j=1; j<infoVector[i].size(); j++){
         //     cout<<infoVector[i][j]<<"\t";
@@ -43,8 +48,18 @@ void displayWindow(){
     //     endPos=newWinRows<infoVector.size()
     // }
     // endPos=winRows-6;
-    winRows=terminalRows();
-    endPos=(winRows-6+startPos)<infoVector.size()?(winRows-6+startPos):infoVector.size()-1;
+    // winRows=terminalRows();
+
+
+    // size_t newWinRows=terminalRows();
+    // if(newWinRows>=winRows){
+    //     winRows=newWinRows;
+        
+    // }else{
+    //     startPos=cursorPos;
+    //     winRows=newWinRows;
+    // }
+    //     endPos=(winRows-6+startPos)<infoVector.size()?(winRows-6+startPos):infoVector.size()-1;
 
     displayInfoVector();
 
@@ -54,9 +69,9 @@ void displayWindow(){
     }
     cout<<"PATH: "<<gbPath<<endl;
     if(!commandMode)
-    cout<<"------NORMAL MODE------";
+    cout<<"\033[1;32m"<<"--------NORMAL MODE--------"<<"\033[0m";
     else
-    cout<<"------COMMAND MODE------";
+    cout<<"\033[1;32m"<<"--------COMMAND MODE-------"<<"\033[0m"<<"\n> ";
 }
 
 void displayWindowResetPointers(){
@@ -66,6 +81,23 @@ void displayWindowResetPointers(){
     resetPointers();
     displayWindow();
     
+}
+
+void sigWinChHandler(int sig){
+    winCols=terminalCols();
+    // winRows=terminalRows();
+
+    size_t newWinRows=terminalRows();
+    if(newWinRows>=winRows){
+        winRows=newWinRows;
+        
+    }else{
+        startPos=cursorPos;
+        winRows=newWinRows;
+    }
+    endPos=(winRows-6+startPos)<infoVector.size()?(winRows-6+startPos):infoVector.size()-1;
+    displayWindow();
+
 }
 
 string simplifyPath(string dirnameString){
@@ -204,7 +236,7 @@ vector<string> listDirectory(const char *dirname){
     // if simplified dirnameString is  empty that means actually it would be "/"
     if(dirnameString=="")dirnameString="/";
 
-    cout<<"dirname"<<dirnameString<<endl;
+    // cout<<"dirname"<<dirnameString<<endl;
     // dir=opendir(dirname);
     dir=opendir(dirnameString.c_str());
     if(!dir){

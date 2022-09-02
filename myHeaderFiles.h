@@ -9,10 +9,12 @@
 #include <termios.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
+#include <signal.h>
 #include <sys/types.h>
 #include <dirent.h>
 #include<bits/stdc++.h>
 #include <sys/stat.h>
+#include <fcntl.h>
 #include <fstream>
 using namespace std;
 
@@ -24,7 +26,7 @@ extern string home;
 
 extern vector<vector<string>> infoVector;
 extern stack<string> backStack,forStack;
-extern size_t cursorPos, startPos, endPos,winRows;
+extern size_t cursorPos, startPos, endPos,winRows, winCols;
 extern string gbPath;
 extern bool commandMode;
 extern bool searchFound;
@@ -33,6 +35,7 @@ void setHomePath();
 void setCanonicalMode();
 void setNonCanonicalMode();
 size_t terminalRows();
+size_t terminalCols();
 vector<string> split(string str, char del);
 void emptyBackStack();
 void emptyForStack();
@@ -54,5 +57,6 @@ void forKey();
 void backspace();
 
 
+void sigWinChHandler(int);
 void takeInput();
 vector<string> getCommand(string inp);
