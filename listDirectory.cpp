@@ -34,7 +34,7 @@ void displayInfoVector(){
 void resetPointers(){
     winRows= terminalRows();
     // endPos=winRows-6;
-    endPos=infoVector.size()<winRows-6?infoVector.size()-1:winRows-6;
+    endPos=infoVector.size()<winRows-7?infoVector.size()-1:winRows-7;
     cursorPos=startPos=0;
 }
 
@@ -63,7 +63,7 @@ void displayWindow(){
 
     displayInfoVector();
 
-    int emptyLine=winRows-(endPos-startPos+1)-4;
+    int emptyLine=winRows-(endPos-startPos+1)-5;
     while(emptyLine--){
         cout<<endl;
     }
@@ -95,7 +95,7 @@ void sigWinChHandler(int sig){
         startPos=cursorPos;
         winRows=newWinRows;
     }
-    endPos=(winRows-6+startPos)<infoVector.size()?(winRows-6+startPos):infoVector.size()-1;
+    endPos=(winRows-7+startPos)<infoVector.size()?(winRows-7+startPos):infoVector.size()-1;
     displayWindow();
 
 }
@@ -240,8 +240,8 @@ vector<string> listDirectory(const char *dirname){
     // dir=opendir(dirname);
     dir=opendir(dirnameString.c_str());
     if(!dir){
-        cout<<"Error in opening directory"<<endl;
-        exit(1);
+        cout<<"\nError in opening directory"<<endl;
+        // exit(1);
     }
 
 

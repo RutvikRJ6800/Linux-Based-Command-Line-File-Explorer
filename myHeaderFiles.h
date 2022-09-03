@@ -59,4 +59,7 @@ void backspace();
 
 void sigWinChHandler(int);
 void takeInput();
+int moveUsingPath(string, string);
+int copyG(string , string , string );
+int copyUsingPath(string , string );
 vector<string> getCommand(string inp);
