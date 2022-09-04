@@ -73,9 +73,9 @@ void displayWindow(){
     }
     cout<<"PATH: "<<gbPath<<endl;
     if(!commandMode)
-    cout<<"\033[1;32m"<<"--------NORMAL MODE--------"<<"\033[0m";
+    cout<<"\033[1;92m"<<"--------NORMAL MODE--------"<<"\033[0m";
     else
-    cout<<"\033[1;32m"<<"--------COMMAND MODE-------"<<"\033[0m"<<"\n> ";
+    cout<<"\033[1;92m"<<"--------COMMAND MODE-------"<<"\033[0m"<<"\n> ";
 }
 
 /*##############################################

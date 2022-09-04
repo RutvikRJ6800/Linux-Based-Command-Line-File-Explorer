@@ -879,9 +879,9 @@ move command
                     s="Error Message: "+s;
                     write(STDOUT_FILENO, s.c_str(),s.size());
                 }
-                // sleep(2);
-                // listDirectory(gbPath.c_str());
-                // displayWindowResetPointers();
+                sleep(2);
+                listDirectory(gbPath.c_str());
+                displayWindowResetPointers();
             }
 /*###########################################
 invalid command
