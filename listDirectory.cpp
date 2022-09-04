@@ -1,10 +1,11 @@
 #include "myHeaderFiles.h"
 
 vector<vector<string>> infoVector;
-
+/*##############################################
+display info Vectors
+ ##############################################*/
 void displayInfoVector(){
     cout<<"\33c";
-    // for(int i=0; i<infoVector.size(); i++){
     for(size_t i=startPos; i<=endPos; i++){
         if(i==cursorPos){
             cout<<"\033[1;7m";
@@ -23,21 +24,20 @@ void displayInfoVector(){
             cout<<"\033[0m";
         }
         cout<<"\n";
-
-        // for(int j=1; j<infoVector[i].size(); j++){
-        //     cout<<infoVector[i][j]<<"\t";
-        // }
-        // cout<<endl;
-
     }
 }
+/*##############################################
+set startPos, ensPos, & cursorPos to 0. 
+ ##############################################*/
 void resetPointers(){
     winRows= terminalRows();
     // endPos=winRows-6;
     endPos=infoVector.size()<winRows-7?infoVector.size()-1:winRows-7;
     cursorPos=startPos=0;
 }
-
+/*##############################################
+display window without reset pos
+ ##############################################*/
 void displayWindow(){
     // int winRows= terminalRows();
     // endPos=winRows-6;
@@ -74,6 +74,9 @@ void displayWindow(){
     cout<<"\033[1;32m"<<"--------COMMAND MODE-------"<<"\033[0m"<<"\n> ";
 }
 
+/*##############################################
+display window with reset pos
+ ##############################################*/
 void displayWindowResetPointers(){
     // int winRows= terminalRows();
     // endPos=winRows-6; 
@@ -83,6 +86,9 @@ void displayWindowResetPointers(){
     
 }
 
+/*##############################################
+window size change handler - calls by signal
+ ##############################################*/
 void sigWinChHandler(int sig){
     winCols=terminalCols();
     // winRows=terminalRows();
@@ -99,7 +105,9 @@ void sigWinChHandler(int sig){
     displayWindow();
 
 }
-
+/*##############################################
+simplify path if it has . or .. in last
+ ##############################################*/
 string simplifyPath(string dirnameString){
     int dirLength=dirnameString.size();
     if(dirnameString[dirLength-1]=='.' && dirnameString[dirLength-2]=='.'){
@@ -120,6 +128,9 @@ string simplifyPath(string dirnameString){
 
 }
 
+/*##############################################
+create info vector of entity presets at path
+ ##############################################*/
 void createInfoVector(string path){
     struct stat inode;
     double fileSize;
@@ -132,13 +143,6 @@ void createInfoVector(string path){
         cout<<"Can't open the file with path "<<path<<" error code: "<<strerror(stat(path.c_str(),&inode))<<endl;
         return;
     }
-
-     /* print vec of name 
-    for(int i=0; i<name.size(); i++){
-        cout<<name[i]<<" ";
-    }
-    cout<<endl;
-    */
     
     perm="";
     
@@ -169,8 +173,6 @@ void createInfoVector(string path){
                 fs=fs.substr(0, fs.find(".")+3);
                 fs+='G';
                 details.push_back(fs);
-
-
             }
             // printf("%8.2fM\t",fileSize);
             string fs = to_string(fileSize);
@@ -215,6 +217,9 @@ void createInfoVector(string path){
 
 }
 
+/*##############################################
+list directory from path(create info vector and sort it)
+ ##############################################*/
 vector<string> listDirectory(const char *dirname){
     DIR *dir;
     struct dirent *d;

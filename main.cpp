@@ -6,7 +6,18 @@ arrow key make transition of command mode to normal mode due to esc
 */
 #include "myHeaderFiles.h"
 
+
+
+/*##############################################
+GOLBAL VARIABLE DECLARATION
+ ##############################################*/
 bool commandMode=false;
+
+
+
+/*##############################################
+MAIN FUNCTION
+ ##############################################*/
 int main(){
 
     signal(SIGWINCH, sigWinChHandler);

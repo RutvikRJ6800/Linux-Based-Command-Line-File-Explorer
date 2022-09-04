@@ -1,7 +1,9 @@
 #include "myHeaderFiles.h"
 
 bool searchFound = false;
-
+/*##############################################
+return absolute path
+ ##############################################*/
 string getAbsolutePath(string path)
 {
     char resolved_path[500];
@@ -69,31 +71,14 @@ string getAbsolutePath(string path)
         }
     }
         return "";
-    // else
-    // {
-    //     // handle absolute path
-    //     if (realpath(path.c_str(), resolved_path) == NULL)
-    //     {
-    //         cout << "error" << strerror(errno);
-    //     }
-    //     string ans(resolved_path);
-    //     // cout<<"path: "<<ans;
-    //     return ans;
-    // }
 }
-
+/*##############################################
+split command taken as inp with space separate
+ ##############################################*/
 vector<string> getCommand(string inp)
 {
     vector<string> ans;
-    // istringstream ss(inp);
     string temp = "";
-    // while (std::getline(ss, temp, ' '))
-    // {
-    //     // std::cout << token << '\n';
-    //     if (temp == " ")
-    //         continue;
-    //     ans.push_back(temp);
-    // }
     bool flag=false;
     for(size_t i=0; i<inp.size(); i++){
         if(inp[i]=='"' && !flag){
@@ -123,7 +108,9 @@ vector<string> getCommand(string inp)
 
     return ans;
 }
-
+/*##############################################
+return permission of file whose path is passed
+ ##############################################*/
 mode_t getPermission(string path)
 {
     struct stat st;
@@ -147,13 +134,11 @@ mode_t getPermission(string path)
         return errno;
     }
 }
-
+/*##############################################
+search at path with name as target
+ ##############################################*/
 void search(string path, string target)
 {
-    // ans string contains valid absolute path now;
-    // search recursively on it.
-
-    // cout<<"path: "<<path<<'\t'<<"target: "<<target<<endl;
     DIR *dir = opendir(path.c_str());
     if (dir == NULL)
     {
@@ -161,17 +146,13 @@ void search(string path, string target)
     }
     else
     {
-        // cout<<"searching in directory: "<<path<<endl;
-
         struct dirent *entity;
         while (((entity = readdir(dir)) != NULL) && !searchFound)
         {
             string s = entity->d_name;
-            // cout<<"s= "<<s<<"\t"<<"target= "<<target<<endl;
 
             if (s == target)
             {
-                // cout<<"target found"<<"path: "<<path<<endl;
                 searchFound = true;
             }
             if (entity->d_type == DT_DIR && strcmp(entity->d_name, ".") != 0 && strcmp(entity->d_name, "..") != 0)
@@ -189,9 +170,10 @@ void search(string path, string target)
         }
     }
     closedir(dir);
-    // cout<<"come to end of while"<<endl;
 }
-
+/*##########################################################
+rename file from file1 to file2 (file is at currentDirectory)
+ ##########################################################*/
 int renameFile(string file1, string file2)
 {
     // check if file exist in corrent folder or not
@@ -205,7 +187,9 @@ int renameFile(string file1, string file2)
 
     return 0;
 }
-
+/*##########################################################
+create file with name as fileName at path as destination path
+ ###########################################################*/
 int createFile(string fileName, string path)
 {
     path = getAbsolutePath(path);
@@ -221,6 +205,9 @@ int createFile(string fileName, string path)
     return 0;
 }
 
+/*#############################################################
+create directory with name dirname at path with permission perm
+ #############################################################*/
 int createDir(string dirname, string path, mode_t perm)
 {
     path = getAbsolutePath(path);
@@ -234,55 +221,9 @@ int createDir(string dirname, string path, mode_t perm)
         return 0;
     }
 }
-
-// int copy(string name, string destination){
-//     DIR* dir = opendir(gbPath.c_str());
-//     if(dir==NULL){
-//         cout<<strerror(errno)<<endl;
-//     }
-//     else{
-//         struct dirent* entity;
-//         bool flag=false;
-//         while(((entity=readdir(dir)) != NULL) && !flag){
-//             string s=entity->d_name;
-//             if(s==name){
-//                 flag=true;
-//                 break;
-//             }
-//         }
-//         if(flag && (entity->d_type==DT_REG)){
-//             // file with name name found
-//             destination=getAbsolutePath(destination);
-//             string newName=destination+'/'+name;
-//             string oldName;
-//             if(gbPath[gbPath.size()-1]=='/'){
-//                 oldName=gbPath+name;
-//             }
-//             else{
-//                 oldName=gbPath+'/'+name;
-//             }
-//             ifstream origFile{oldName};
-//             ofstream newFile{newName};
-//             string line;
-
-//             if(origFile && newFile){
-//                 while(getline(origFile,line)){
-//                     newFile<<line<<"\n";
-//                 }
-//                 printf("\nFile copied successfully.");
-//                 return 0;
-//             }
-//             else{
-//                 printf("\nError occured in copy");
-//                 return -1;
-//             }
-//         }
-
-//     }
-//     return -1;
-
-// }
-
+/*#######################################################################
+copy file with name at at destination from source(does't include file name)
+ ######################################################################*/
 int copyFile(string name, string destination, string source)
 {
     destination = getAbsolutePath(destination);
@@ -330,24 +271,10 @@ int copyFile(string name, string destination, string source)
     close(newFile);
     close(oldFile);
     return 0;
-
-    // ifstream origFile{oldName};
-    // ofstream newFile{newName};
-    // string line;
-
-    // if(origFile && newFile){
-    //     while(getline(origFile,line)){
-    //         newFile<<line<<"\n";
-    //     }
-    //     // printf("\nFile copied successfully.");
-    //     return 0;
-    // }
-    // else{
-    //     // printf("\nError occured in copy");
-    //     return -1;
-    // }
 }
-
+/*#######################################################
+copy directory (path as source) recursively at destination 
+ #######################################################*/
 int copyDirect(string destination, string source)
 {
     // copy contets present at source;
@@ -384,7 +311,9 @@ int copyDirect(string destination, string source)
     }
     return -1;
 }
-
+/*##################################################
+generic copy method called when copy commnad entered
+ ###################################################*/
 int copyG(string name, string destination, string source)
 {
     DIR *dir = opendir(source.c_str());
@@ -451,6 +380,9 @@ int copyG(string name, string destination, string source)
     }
     return -1;
 }
+/*##############################################
+copu file/dir with path as source to destination
+ ##############################################*/
 int copyUsingPath(string destination, string source){
     // source = souce folder + / + name of file/folder
     int idx=source.find_last_of('/');
@@ -463,7 +395,9 @@ int copyUsingPath(string destination, string source){
 
 
 }
-
+/*###########################################
+delete file with path
+ ###########################################*/
 int deleteFile(string path)
 {
     path = getAbsolutePath(path);
@@ -477,6 +411,9 @@ int deleteFile(string path)
         return -1;
 }
 
+/*###########################################
+delete directory with path
+ ###########################################*/
 int deleteDir(string path)
 {
     // cout<<"    deleting "<<path<<" ...."<<endl;
@@ -518,7 +455,9 @@ int deleteDir(string path)
     }
     return 0;
 }
-
+/*#####################################################
+generic delete method called when delete command entered
+ #####################################################*/
 int deleteG(string path)
 {
     path = getAbsolutePath(path);
@@ -557,7 +496,9 @@ int deleteG(string path)
     }
     return 0;
 }
-
+/*##############################################################
+move file/dir with name as name from  source to destination(path)
+ ##################################################################*/
 int move(string name, string path, string source)
 {
     path = getAbsolutePath(path);
@@ -622,7 +563,9 @@ int move(string name, string path, string source)
     return -1;
 }
 
-
+/*################################################
+move file/dir from source path to destination path
+ ################################################*/
 int moveUsingPath(string destination, string source){
     // source = souce folder + / + name of file/folder
     int idx=source.find_last_of('/');
@@ -631,11 +574,11 @@ int moveUsingPath(string destination, string source){
     string name=source.substr(idx+1,source.size()-(idx+1));
 
     return move(name,destination,ss);
-
-
-
 }
 
+/*#################################################
+manage input commands and calls respective functions
+ #################################################*/
 void takeInput()
 {
     char ch;
@@ -661,92 +604,18 @@ void takeInput()
                 inp += ch;
                 size++;
             }
-
-
-
-            // if ((ch == 127))
-            // {
-            //     if(size==0) continue;
-            //     if (size > 0)
-            //     {
-            //         inp.pop_back();
-            //         cout << "\b \b";
-            //         size--;
-            //     }
-            
-            // }
-            // cout << ch;
-            // inp += ch;
-            // size++;
         }
-        // cout<<endl;
         if (ch == '\n' && inp.size() > 0)
         {
             vector<string> command = getCommand(inp);
-            // cout<<"You written:";
-            // for(size_t i=0; i<command.size(); i++){
-            //     cout<<command[i]<<" ";
-            // }
 
             // FIND WHICH COMMAND IS WRITTEN
+/*###########################################
+goto command
+ ###########################################*/
             if (command[0] == "goto" && command.size()==2)
             {
-                // cout<<"goto executed"<<endl;
-                // string path = command[1];
-                // char resolved_path[500];
-                // if (path[0] == '.')
-                // {
-                //     // Handle relative Path
-                //     path = gbPath + '/' + path;
-                //     if (realpath(path.c_str(), resolved_path) == NULL)
-                //     {
-                //         cout << "\nError Message: " << strerror(errno);
-                //     }
-                //     else
-                //     {
-                //         // printf("\n%s\n",resolved_path);
-                //         string ans(resolved_path);
-                //         // cout<<"path: "<<ans;
-                //         listDirectory(ans.c_str());
-                //         gbPath = ans;
-                //         sleep(2);
-                //         displayWindowResetPointers();
-                //     }
-                // }
-                // else if (path[0] == '~')
-                // {
-                //     string withTildRemove = path.substr(1, path.size() - 1);
-                //     path = home + '/' + withTildRemove;
-                //     if (realpath(path.c_str(), resolved_path) == NULL)
-                //     {
-                //         cout << "\nError Message: " << strerror(errno);
-                //     }
-                //     else
-                //     {
-                //         // printf("\n%s\n",resolved_path);
-                //         string ans(resolved_path);
-                //         // cout<<"path: "<<ans;
-                //         listDirectory(ans.c_str());
-                //         gbPath = ans;
-                //         sleep(2);
-                //         displayWindowResetPointers();
-                //         // search on this path
-                //     }
-                // }
-                // else
-                // {
-                //     // Handle absolute path
-                //     if (realpath(path.c_str(), resolved_path) == NULL)
-                //     {
-                //         cout << "\nError Message: " << strerror(errno);
-                //     }
-                //     else{
-                //     string ans(resolved_path);
-                //     listDirectory(ans.c_str());
-                //     gbPath = ans;
-                //     displayWindowResetPointers();
-                //     }
-                // }
+                
                 string path = command[1];
                 path = getAbsolutePath(path);
                 if(path.size()==0){
@@ -755,10 +624,16 @@ void takeInput()
                 }
                 else{
                     listDirectory(path.c_str());
-                    gbPath=path;
+                    if(gbPath!=path){
+                        backStack.push(gbPath);
+                        gbPath=path;
+                    }
                 }
                 displayWindowResetPointers();
             }
+/*###########################################
+search command
+ ###########################################*/
             else if (command[0] == "search" && command.size()>=2)
             {
                 searchFound = false;
@@ -776,10 +651,16 @@ void takeInput()
                 sleep(2);
                 displayWindowResetPointers();
             }
+/*###########################################
+quite
+ ###########################################*/
             else if (command[0] == "quit")
             {
                 exit(1);
             }
+/*###########################################
+rename command
+ ###########################################*/
             else if (command[0] == "rename")
             {
                 if (renameFile(command[1], command[2]) == 0)
@@ -798,6 +679,9 @@ void takeInput()
                 sleep(3);
                 displayWindowResetPointers();
             }
+/*###########################################
+create_file command
+ ###########################################*/
             else if (command[0] == "create_file")
             {
                 int res = createFile(command[1], command[2]);
@@ -819,6 +703,9 @@ void takeInput()
                 sleep(3);
                 displayWindowResetPointers();
             }
+/*###########################################
+create_dir command
+ ###########################################*/
             else if (command[0] == "create_dir")
             {
                 int res = createDir(command[1], command[2], (S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH));
@@ -839,12 +726,11 @@ void takeInput()
                 sleep(2);
                 displayWindowResetPointers();
             }
+/*###########################################
+copy command
+ ###########################################*/
             else if (command[0] == "copy")
             {
-                // cout<<endl;
-                // for(int i=0; i<command.size(); i++){
-                //     cout<<command[i]<<"$$";
-                // }
                 size_t sz = command.size();
                 int res = 0;
                 for (size_t i = 1; i <= sz - 2; i++)
@@ -868,6 +754,9 @@ void takeInput()
                 sleep(2);
                 displayWindowResetPointers();
             }
+/*###########################################
+delete_file command
+ ###########################################*/
             else if (command[0] == "delete_file")
             {
                 if (deleteFile(command[1]) == 0)
@@ -887,6 +776,9 @@ void takeInput()
                 sleep(2);
                 displayWindowResetPointers();
             }
+/*###########################################
+delete_dir command
+ ###########################################*/
             else if (command[0] == "delete_dir")
             {
                 if (deleteG(command[1]) == 0)
@@ -906,6 +798,9 @@ void takeInput()
                 sleep(2);
                 displayWindowResetPointers();
             }
+/*###########################################
+move command
+ ###########################################*/
             else if (command[0] == "move")
             {
                 size_t sz = command.size();
@@ -931,6 +826,9 @@ void takeInput()
                 listDirectory(gbPath.c_str());
                 displayWindowResetPointers();
             }
+/*###########################################
+invalid command
+ ###########################################*/
             else{
                 cout<<endl;
                 string s="Invalid Command..!!";
@@ -942,7 +840,6 @@ void takeInput()
     } while (ch != 27);
 
     // esc pressed so come out of command mode
-    // cout<<"exit from commamd mode";
     commandMode = false;
     return;
 }

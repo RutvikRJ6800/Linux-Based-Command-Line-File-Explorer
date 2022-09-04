@@ -1,8 +1,20 @@
 #include "myHeaderFiles.h"
-
+/*##############################################
+GLOBAL VARIABLES
+ ##############################################*/
 size_t cursorPos, startPos, endPos,winRows, winCols;
 stack<string> backStack,forStack;
 
+
+
+/*##############################################
+FUNCATIONS PERFOMING KEY PRESS ACTION TASK
+ ##############################################*/
+
+
+ /*##############################################
+open directory where the cursor is pointing
+ ##############################################*/
 void openDirectory(){
     // cursor is standing at valid directory
         string newPath=infoVector[cursorPos][0];
@@ -17,8 +29,11 @@ void openDirectory(){
         displayWindowResetPointers();
 }
 
+/*##############################################
+enter key pressed -1.open directory/file
+ ##############################################*/
 void enterKey(){
-    if(cursorPos==0 || cursorPos==1){
+    if(cursorPos==0){
         return;
     }
     // cursor is standing at valid directory
@@ -35,6 +50,9 @@ void enterKey(){
     }
 }
 
+/*##############################################
+up key press
+ ##############################################*/
 void upKey(){
     if(cursorPos==0)return;
     cursorPos--;
@@ -55,7 +73,9 @@ void upKey(){
     }
 }
 
-// void downKey(int cursorPos, int startPos, int endPos, vector<int> vecOfPaths){
+/*##############################################
+down key press
+ ##############################################*/
 void downKey(){
     cursorPos++;
     if(cursorPos<infoVector.size()){
@@ -75,6 +95,9 @@ void downKey(){
     }
 }
 
+/*##############################################
+back key press
+ ##############################################*/
 void backKey(){
     if(backStack.empty())return;
     else{
@@ -91,6 +114,9 @@ void backKey(){
     }
 }
 
+/*##############################################
+forward key press
+ ##############################################*/
 void forKey(){
     if(forStack.empty())return;
     else{
@@ -109,34 +135,10 @@ void forKey(){
     }
 }
 
+/*##############################################
+backspace key press
+ ##############################################*/
 void backspace(){
-    // if(backStack.empty()){
-    //     string newPath= simplifyPath(gbPath);
-    //     int idx=newPath.find_last_of('/');
-    //     newPath= newPath.substr(0,idx);
-
-    //     if(newPath=="")newPath="/";
-
-    //     listDirectory(newPath.c_str());
-    //     // in future check if error generated or not in listing directory and handle the case
-
-    //     // backStack.push(gbPath);
-    //     emptyForStack();// forStack.clear();
-    //     gbPath=newPath;
-    //     displayWindowResetPointers();
-    // }
-    // else{
-    //     // string newPath=backStack[backStack.size()-1];
-    //     string newPath=backStack.top();
-    //     backStack.pop();
-    //     listDirectory(newPath.c_str());
-    //     // in future check if error generated or not in listing directory and handle the case
-    //     emptyForStack();// forStack.clear();
-    //     gbPath=newPath;
-
-    //     displayWindowResetPointers();
-    // }
-
     // NEW BACKSPACE FUNCTIONALITY
     string newPath= simplifyPath(gbPath);
 

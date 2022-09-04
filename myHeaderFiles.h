@@ -1,3 +1,6 @@
+/*##############################################
+INCLUDE NEEDED HEADER FILES 
+ ##############################################*/
 #include<iostream>
 #include <ctype.h>
 #include <errno.h>
@@ -18,6 +21,10 @@
 #include <fstream>
 using namespace std;
 
+
+/*##############################################
+EXTENDING SCOPE OF GLOBAL VARIABLE
+ ##############################################*/
 extern struct winsize wins;
 extern struct termios initialAttributes;
 extern struct passwd *pw;
@@ -31,6 +38,10 @@ extern string gbPath;
 extern bool commandMode;
 extern bool searchFound;
 
+
+/*##############################################
+FUNCTIONS DEFINATIONS
+ ##############################################*/
 void setHomePath();
 void setCanonicalMode();
 void setNonCanonicalMode();
@@ -62,4 +73,6 @@ void takeInput();
 int moveUsingPath(string, string);
 int copyG(string , string , string );
 int copyUsingPath(string , string );
-vector<string> getCommand(string inp);
+string getAbsolutePath(string);
+vector<string> getCommand(string);
+
