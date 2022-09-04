@@ -5,13 +5,19 @@ need to press colon two times
 arrow key make transition of command mode to normal mode due to esc
 */
 #include "myHeaderFiles.h"
+#include "utilities.h"
+#include "nonCanonicalMode.h"
+#include "listDirectory.h"
+#include "keyPressActions.h"
+#include "commandMode.h"
+
 
 
 
 /*##############################################
 GOLBAL VARIABLE DECLARATION
  ##############################################*/
-bool commandMode=false;
+// bool commandMode=false;
 
 
 
@@ -67,6 +73,9 @@ int main(){
                         backKey();
                         break;
                     }
+                }
+                else{
+                    continue;
                 }
             }
             else if(ch==0x0A){
